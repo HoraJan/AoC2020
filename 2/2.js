@@ -3,12 +3,11 @@ function solution2first(arr) {
   const filteredLines = lines.filter((line) => {
     const [times, letter, haystick] = line.replace(":", "").trim().split(" ");
     const [low, high] = times.split("-");
-    const re = new RegExp(letter, "g");
-    if (!haystick.match(re)) return false;
+    const numberOfLetters = haystick
+      .split("")
+      .filter((piece) => letter === piece).length;
 
-    return (
-      low <= haystick.match(re).length && haystick.match(re).length <= high
-    );
+    return low <= numberOfLetters && numberOfLetters <= high;
   });
   return filteredLines.length;
 }
