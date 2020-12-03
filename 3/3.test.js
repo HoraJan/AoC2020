@@ -13,7 +13,7 @@ stringTest = `..##.......
 sol = require("./3.js");
 
 test("first part", () => {
-  expect(sol.solution3first(stringTest, 3, 1)).toBe(7);
+  expect(sol.solution3first(stringTest)).toBe(7);
 });
 
 test("second part", () => {
