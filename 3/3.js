@@ -2,13 +2,12 @@ const TREE_CHAR = "#";
 
 function solution3first(arr, left = 3, down = 1) {
   const lines = arr.split("\n");
-  const linesPieces = lines.map((line) => line.split(""));
   const lineLength = lines[0].length;
   const linesCount = lines.length;
   let trees = 0;
   for (let row = 0; row < linesCount; row = row + down) {
     const column = ((row / down) * left) % lineLength;
-    if (linesPieces[row][column] === TREE_CHAR) {
+    if (lines[row][column] === TREE_CHAR) {
       trees++;
     }
   }
