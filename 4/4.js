@@ -11,11 +11,11 @@ function validation(type, value) {
     return parseInt(value) >= 2020 && parseInt(value) <= 2030;
   }
   if (type === "hgt") {
-    const cm = value.match(/(\d*)cm/);
+    const cm = value.match(/^(\d*)cm$/);
     if (cm) {
       return cm[1] >= 150 && cm[1] <= 193;
     }
-    const inch = value.match(/(\d*)in/);
+    const inch = value.match(/^(\d*)in$/);
     if (inch) {
       return inch[1] >= 59 && inch[1] <= 76;
     }
