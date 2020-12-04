@@ -1,13 +1,4 @@
-const MANDATORY_FIELDS = [
-  "byr",
-  "iyr",
-  "eyr",
-  "hgt",
-  "hcl",
-  "ecl",
-  "pid",
-  "cid",
-];
+const MANDATORY_FIELDS = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 
 function validation(type, value) {
   if (type === "byr") {
@@ -32,13 +23,13 @@ function validation(type, value) {
     return false;
   }
   if (type === "hcl") {
-    return !!value.match(/#[0-9a-f]{6}/);
+    return !!value.match(/^#[0-9a-f]{6}$/);
   }
   if (type === "ecl") {
     return ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].includes(value);
   }
   if (type === "pid") {
-    return !!value.match(/[0-9]{9}/) && value.length === 9;
+    return !!value.match(/^[0-9]{9}$/);
   }
 }
 
@@ -51,9 +42,7 @@ function passportValidation(arr, validationFunction) {
     keyPairs.forEach(([key, value]) =>
       validationFunction(key, value) ? (object[key] = value) : null
     );
-    const missingFields = MANDATORY_FIELDS.filter(
-      (field) => !object[field] && field !== "cid"
-    );
+    const missingFields = MANDATORY_FIELDS.filter((field) => !object[field]);
     return missingFields.length === 0;
   });
   return valid.length;
