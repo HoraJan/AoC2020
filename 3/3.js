@@ -1,6 +1,6 @@
 const TREE_CHAR = "#";
 
-function solution3first(arr, left = 3, down = 1) {
+function countTrees(arr, left, down) {
   const lines = arr.split("\n");
   const lineLength = lines[0].length;
   const linesCount = lines.length;
@@ -13,6 +13,10 @@ function solution3first(arr, left = 3, down = 1) {
   }
   return trees;
 }
+
+function solution3first(arr) {
+  return countTrees(arr, 3, 1);
+}
 function solution3second(arr) {
   const slopes = [
     [1, 1],
@@ -22,7 +26,7 @@ function solution3second(arr) {
     [1, 2],
   ];
 
-  const trees = slopes.map((slope) => solution3first(arr, slope[0], slope[1]));
+  const trees = slopes.map((slope) => countTrees(arr, slope[0], slope[1]));
 
   return trees.reduce((acc, el) => acc * el, 1);
 }
