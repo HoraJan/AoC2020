@@ -1,15 +1,19 @@
-function getSeatNumber(str) {
-  const binary = str.replace(/f|l/gi, "0").replace(/b|r/gi, "1");
-  return parseInt(binary, 2);
+function getSortedSeatsNumber(arr) {
+  return arr
+    .split("\n")
+    .map((str) => {
+      const binary = str.replace(/f|l/gi, "0").replace(/b|r/gi, "1");
+      return parseInt(binary, 2);
+    })
+    .sort((a, b) => a - b);
 }
 
 function solution5first(arr) {
-  const seats = arr.split("\n").map(getSeatNumber);
-  return seats.sort((a, b) => b - a)[0];
+  const seats = getSortedSeatsNumber(arr);
+  return seats.reverse()[0];
 }
 function solution5second(arr) {
-  const seats = arr.split("\n").map(getSeatNumber);
-  seats.sort();
+  const seats = getSortedSeatsNumber(arr);
   const missing = seats.find((seat, index) => seat === seats[index - 1] + 2);
   return missing - 1;
 }
