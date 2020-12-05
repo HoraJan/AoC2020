@@ -10,14 +10,13 @@ function getSeatNumber(str) {
 
 function solution5first(arr) {
   const lines = arr.split("\n");
-  return lines.reduce((max, line) => {
-    return Math.max(max, getSeatNumber(line));
-  }, 0);
+  const seats = lines.map(getSeatNumber);
+  return seats.sort((a, b) => b - a)[0];
 }
 function solution5second(arr) {
   const seats = arr.split("\n").map(getSeatNumber);
   seats.sort();
-  const missing = seats.filter((seat, index) => seat === seats[index - 1] + 2);
+  const missing = seats.find((seat, index) => seat === seats[index - 1] + 2);
   return missing - 1;
 }
 
