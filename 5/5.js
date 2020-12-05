@@ -1,16 +1,10 @@
 function getSeatNumber(str) {
   const binary = str.replace(/f|l/gi, "0").replace(/b|r/gi, "1");
-  return (decimal = binary
-    .split("")
-    .reverse()
-    .reduce((acc, curr, index) => {
-      return acc + curr * Math.pow(2, index);
-    }, 0));
+  return parseInt(binary, 2);
 }
 
 function solution5first(arr) {
-  const lines = arr.split("\n");
-  const seats = lines.map(getSeatNumber);
+  const seats = arr.split("\n").map(getSeatNumber);
   return seats.sort((a, b) => b - a)[0];
 }
 function solution5second(arr) {
