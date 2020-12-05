@@ -10,7 +10,7 @@ function getSortedSeatsNumber(arr) {
 
 function solution5first(arr) {
   const seats = getSortedSeatsNumber(arr);
-  return seats.reverse()[0];
+  return seats.pop();
 }
 function solution5second(arr) {
   const seats = getSortedSeatsNumber(arr);
