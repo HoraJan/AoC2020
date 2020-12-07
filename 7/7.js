@@ -1,25 +1,28 @@
 const MY_COLOR = "shiny gold";
 
-function getAnotherLevel(arr, colorArray, uniqueColors) {
-  colorArray.forEach((color) => (uniqueColors[color] = true));
-
-  const currentColors = {};
+function getColorsFromParentLevel(arr, colorArray, usedColors) {
+  const uniqueColors = new Set([...usedColors, ...colorArray]);
+  const currentColors = new Set();
 
   colorArray.forEach((upperColor) =>
     arr.forEach(([color, content]) =>
       content.forEach((subBag) => {
-        if (subBag.color === upperColor && !uniqueColors[color]) {
-          currentColors[color] = true;
+        if (subBag.color === upperColor && !uniqueColors.has(color)) {
+          currentColors.add(color);
         }
       })
     )
   );
 
-  if (Object.keys(currentColors).length) {
-    getAnotherLevel(arr, Object.keys(currentColors), uniqueColors);
+  if (currentColors.size) {
+    return getColorsFromParentLevel(
+      arr,
+      Array.from(currentColors),
+      Array.from(uniqueColors)
+    );
   }
 
-  return Object.keys(uniqueColors);
+  return uniqueColors;
 }
 
 function getSubCount(object, subBags) {
@@ -57,9 +60,9 @@ function parseRules(arr) {
 function solution7first(arr) {
   const ruleObject = parseRules(arr);
   const ruleArray = Object.entries(ruleObject);
-  const directParent = getAnotherLevel(ruleArray, [MY_COLOR], {});
+  const totalCount = getColorsFromParentLevel(ruleArray, [MY_COLOR], []);
 
-  return directParent.length - 1;
+  return totalCount.size - 1; // need to subtract `shiny gold`
 }
 function solution7second(arr) {
   const ruleObject = parseRules(arr);
