@@ -6,11 +6,11 @@ function program(instructions) {
     if (visitedLines.has(index)) {
       return { value: acc, infinite: true };
     }
-    const nextCommand = instructions[index];
-    if (!nextCommand) {
-      break;
+
+    if (index >= instructions.length) {
+      return { value: acc, infinite: false };
     }
-    const { operation, argument } = nextCommand;
+    const { operation, argument } = instructions[index];
     visitedLines.add(index);
     if (operation === "acc") {
       acc += parseInt(argument);
@@ -26,7 +26,6 @@ function program(instructions) {
       continue;
     }
   }
-  return { value: acc, infinite: false };
 }
 
 function getInstructions(arr) {
@@ -47,18 +46,17 @@ function solution8first(arr) {
 
 function solution8second(arr) {
   const instructions = getInstructions(arr);
-  let changedIndex = -1;
-  while (true) {
-    const notChangedYetIndex = instructions.findIndex(
-      (el, index) => el.operation !== "acc" && index > changedIndex
-    );
-    const notChangedYet = instructions[notChangedYetIndex];
-    changedIndex = notChangedYetIndex;
+
+  for (let i = 0; i < instructions.length; i++) {
+    const instruction = instructions[i];
+    if (instruction === "acc") {
+      continue;
+    }
     const newInstructions = [...instructions];
 
-    newInstructions[changedIndex] = {
-      ...notChangedYet,
-      operation: notChangedYet.operation === "jmp" ? "nop" : "jmp",
+    newInstructions[i] = {
+      ...instruction,
+      operation: instruction.operation === "jmp" ? "nop" : "jmp",
     };
     const result = program(newInstructions);
 
