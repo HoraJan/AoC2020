@@ -45,7 +45,7 @@ function parseRules(arr) {
     const { color, content } = rule.match(
       /(?<color>[a-z]+\s[a-z]+) bags contain (?<content>.*)/
     ).groups;
-    const subBags = content.match(/((\d+) ([a-z]+ [a-z]+))/g);
+    const subBags = content.match(/\d+ [a-z]+ [a-z]+/g);
     if (!subBags) {
       // no content
       return;
