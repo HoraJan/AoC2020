@@ -58,10 +58,10 @@ function solution8second(arr) {
       ...instruction,
       operation: instruction.operation === "jmp" ? "nop" : "jmp",
     };
-    const result = program(newInstructions);
+    const { infinite, value } = program(newInstructions);
 
-    if (!result.infinite) {
-      return result.value;
+    if (!infinite) {
+      return value;
     }
   }
 }
