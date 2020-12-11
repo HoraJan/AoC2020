@@ -1,52 +1,39 @@
-function getNeirbor(seats, x, y, xDir, yDir) {
-  const line = seats[x + xDir];
-  if (!line) return 0;
-  if (line[y + yDir] === "#") return 1;
-  return 0;
-}
-
-function getVisibleNeirbor(seats, x, y, xDir, yDir) {
+function getVisibleNeighbor(seats, x, y, xDir, yDir, multiple) {
   let multiply = 1;
-  while (true) {
+  if (xDir === 0 && yDir === 0) return 0;
+  do {
     const line = seats[x + xDir * multiply];
     if (!line) return 0;
     if (line[y + yDir * multiply] === "#") return 1;
     if (line[y + yDir * multiply] === "L") return 0;
     if (!line[y + yDir * multiply]) return 0;
     multiply++;
-  }
+  } while (multiple);
+  return 0;
 }
 
-function doTurn(seats, minNeir, getFunction) {
+function countNeighbor(seats, line, seat, multiple) {
+  let count = 0;
+  for (let x = -1; x < 2; x++) {
+    for (let y = -1; y < 2; y++) {
+      count += getVisibleNeighbor(seats, line, seat, x, y, multiple);
+    }
+  }
+  return count;
+}
+
+function doTurn(seats, minNeir, multiple) {
   return seats.map((line, lineIndex) => {
-    return line.map((position, positionIndex) => {
-      const upperLeft = getFunction(seats, lineIndex, positionIndex, -1, -1);
-      const upper = getFunction(seats, lineIndex, positionIndex, -1, 0);
-      const upperRight = getFunction(seats, lineIndex, positionIndex, -1, +1);
-      const left = getFunction(seats, lineIndex, positionIndex, 0, -1);
-      const right = getFunction(seats, lineIndex, positionIndex, 0, +1);
-      const lowerLeft = getFunction(seats, lineIndex, positionIndex, +1, -1);
-      const lower = getFunction(seats, lineIndex, positionIndex, +1, 0);
-      const lowerRight = getFunction(seats, lineIndex, positionIndex, +1, +1);
-
-      const nierbors =
-        upperLeft +
-        upper +
-        upperRight +
-        left +
-        right +
-        lowerLeft +
-        lower +
-        lowerRight;
-
-      if (position === "L" && nierbors === 0) {
+    return line.map((seat, seatIndex) => {
+      const nierbors = countNeighbor(seats, lineIndex, seatIndex, multiple);
+      if (seat === "L" && nierbors === 0) {
         return "#";
       }
-      if (position === "#" && nierbors > minNeir) {
+      if (seat === "#" && nierbors > minNeir) {
         return "L";
       }
 
-      return position;
+      return seat;
     });
   });
 }
@@ -59,7 +46,7 @@ function getOccupied(seats) {
   );
 }
 
-function solve(string, neirborCount, getFunction) {
+function solve(string, neighborCount, multiple) {
   const seats = string.split("\n").map((line) => line.split(""));
   let occupied = -1;
   let newOccupied = getOccupied(seats);
@@ -67,7 +54,7 @@ function solve(string, neirborCount, getFunction) {
 
   while (occupied !== newOccupied) {
     occupied = newOccupied;
-    newSeats = doTurn(newSeats, neirborCount, getFunction);
+    newSeats = doTurn(newSeats, neighborCount, multiple);
     newOccupied = getOccupied(newSeats);
   }
 
@@ -75,11 +62,11 @@ function solve(string, neirborCount, getFunction) {
 }
 
 function solution11first(string) {
-  return solve(string, 3, getNeirbor);
+  return solve(string, 3);
 }
 
 function solution11second(string) {
-  return solve(string, 4, getVisibleNeirbor);
+  return solve(string, 4, true);
 }
 
 module.exports = {
