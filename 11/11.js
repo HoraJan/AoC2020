@@ -39,11 +39,10 @@ function doTurn(seats, minNeir, multiple) {
 }
 
 function getOccupied(seats) {
-  return seats.reduce(
-    (count, line) =>
-      count + line.reduce((count, seat) => count + (seat === "#" ? 1 : 0), 0),
-    0
-  );
+  const hashes = seats.flat().join().match(/#/g);
+  if (!hashes) return 0;
+
+  return hashes.length;
 }
 
 function solve(string, neighborCount, multiple) {
