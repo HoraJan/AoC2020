@@ -67,7 +67,7 @@ function turn(direction, degrees, position) {
 }
 
 function followInstruciton(instructions, position, moveFunction) {
-  instructions.forEach((instruction, index) => {
+  instructions.forEach((instruction) => {
     const { direction, steps } = parseInstruction(instruction);
     if (direction === "F") {
       return goForward(position, steps);
