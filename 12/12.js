@@ -1,10 +1,3 @@
-const quadrants = [
-  [1, 1],
-  [1, -1],
-  [-1, -1],
-  [-1, 1],
-];
-
 const vectors = {
   N: [0, 1],
   E: [1, 0],
@@ -17,6 +10,7 @@ function parseInstruction(instruction) {
     /(?<direction>\w)(?<steps>\d*)/
   ).groups;
   steps = parseInt(steps);
+
   return {
     direction,
     steps,
@@ -25,43 +19,35 @@ function parseInstruction(instruction) {
 
 function moveShip(position, dir, steps) {
   const [diffX, diffY] = vectors[dir];
-
   position.x = position.x + steps * diffX;
   position.y = position.y + steps * diffY;
+
   return;
 }
 
 function moveWaypoint(position, dir, steps) {
   const [diffX, diffY] = vectors[dir];
-
   position.waypointX = position.waypointX + steps * diffX;
   position.waypointY = position.waypointY + steps * diffY;
+
   return;
 }
 
 function goForward(position, steps) {
   position.x = position.x + position.waypointX * steps;
   position.y = position.y + position.waypointY * steps;
+
   return;
 }
 
 function turn(direction, degrees, position) {
-  const diff = direction === "R" ? 1 : -1;
-  for (let i = 0; i < degrees / 90; i++) {
-    let dir =
-      position.waypointX >= 0
-        ? position.waypointY >= 0
-          ? 0
-          : 1
-        : position.waypointY >= 0
-        ? 3
-        : 2;
-    dir = (dir + diff + 4) % 4;
-    const [dirX, dirY] = quadrants[dir];
-    const oldWaypointX = position.waypointX;
-    position.waypointX = Math.abs(position.waypointY) * dirX;
-    position.waypointY = Math.abs(oldWaypointX) * dirY;
+  degrees = direction === "R" ? degrees : 360 - degrees;
+  let { waypointX, waypointY } = position;
+  for (let i = 0; i < degrees / 90; ++i) {
+    [waypointX, waypointY] = [waypointY, -waypointX];
   }
+  position.waypointX = waypointX;
+  position.waypointY = waypointY;
 
   return;
 }
