@@ -1,27 +1,20 @@
 function solve(string, length) {
   const start = string.split(",");
   const spoken = new Map();
-  let turn = 1;
+  let turn = 0;
   let lastSpoken = 0;
   let lastFirst = false;
   start.forEach((value, index) => {
     lastSpoken = parseInt(value);
-    lastFirst = true;
+    lastFirst = !spoken.has(lastSpoken);
     turn++;
     if (index === start.length) return;
-    spoken.set(parseInt(value), turn - 1);
+    spoken.set(lastSpoken, turn);
   });
 
-  while (turn !== length + 1) {
-    if (lastFirst) {
-      spoken.set(lastSpoken, turn - 1);
-      lastFirst = !spoken.has(0);
-      lastSpoken = 0;
-      turn++;
-      continue;
-    }
-    const age = turn - 1 - spoken.get(lastSpoken);
-    spoken.set(lastSpoken, turn - 1);
+  while (turn !== length) {
+    const age = lastFirst ? 0 : turn - spoken.get(lastSpoken);
+    spoken.set(lastSpoken, turn);
     lastSpoken = age;
     lastFirst = !spoken.has(age);
     turn++;
