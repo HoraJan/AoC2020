@@ -14,11 +14,7 @@ function sumValues(object) {
 }
 
 function create36bitString(string) {
-  const prefix = Array(36).fill("0").join("");
-  let value = prefix + parseInt(string).toString(2);
-  value = value.substring(value.length - 36);
-
-  return value;
+  return parseInt(string).toString(2).padStart(36, "0");
 }
 
 function solution14first(string) {
