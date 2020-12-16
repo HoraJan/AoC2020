@@ -10,6 +10,7 @@ function checkValueInLimits(value, [firstLimit, secondLimit]) {
 }
 
 function solution16first(string) {
+  console.time("first");
   const [definitions, _myTicket, otherTickets] = string.split("\n\n");
   const sections = definitions
     .match(/(\d+\-\d+)+/g)
@@ -24,10 +25,12 @@ function solution16first(string) {
       );
     });
 
+  console.timeEnd("first");
   return invalid.reduce((acc, curr) => acc + curr);
 }
 
 function solution16second(string) {
+  console.time("second");
   const [definitions, myTicket, otherTickets] = string.split("\n\n");
 
   const myNumbers = myTicket
@@ -37,7 +40,7 @@ function solution16second(string) {
     .flat();
   const possibilities = myNumbers.map((_v, i) => i);
 
-  const sections = {};
+  const sections = new Map();
   definitions.split("\n").forEach((line) => {
     const { name, start1, stop1, start2, stop2 } = line.match(
       /(?<name>[a-z ]+):\s(?<start1>\d+)\-(?<stop1>\d+)\sor\s(?<start2>\d+)\-(?<stop2>\d+)/
@@ -77,7 +80,7 @@ function solution16second(string) {
     });
   });
 
-  const pairs = {};
+  const pairs = new Map();
 
   while (Object.values(pairs).length !== Object.values(sections).length) {
     Object.entries(sections).forEach(([key, { possibleIndexes }]) => {
@@ -92,11 +95,11 @@ function solution16second(string) {
       }
     });
   }
-
   const dValues = Object.entries(pairs)
     .filter(([key]) => key.startsWith("departure"))
     .map(([_key, value]) => value);
 
+  console.timeEnd("second");
   return dValues.reduce((acc, curr) => {
     return acc * myNumbers[curr];
   }, 1);
