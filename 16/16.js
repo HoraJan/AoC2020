@@ -61,7 +61,7 @@ function solution16second(string) {
 
   otherNumbers.forEach((otherTicket) => {
     otherTicket.forEach((value, index) => {
-      const validTicket = Object.entries(sections).some(([_key, { limits }]) =>
+      const validTicket = Object.values(sections).some(({ limits }) =>
         checkValueInLimits(value, limits)
       );
 
