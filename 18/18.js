@@ -1,5 +1,5 @@
-const pRegexp = new RegExp(/(?<first>\d+)\s(?<operand>\+)\s(?<second>\d+)/);
-const mRegexp = new RegExp(/(?<first>\d+)\s(?<operand>\*)\s(?<second>\d+)/);
+const pRegExp = new RegExp(/(?<first>\d+)\s(?<operand>\+)\s(?<second>\d+)/);
+const mRegExp = new RegExp(/(?<first>\d+)\s(?<operand>\*)\s(?<second>\d+)/);
 const pmRegExp = new RegExp(
   /(?<first>\d+)\s(?<operand>[\+\*])\s(?<second>\d+)/
 );
@@ -14,49 +14,53 @@ function singleSolve(match) {
     .trim();
 }
 
-function firstSolve(string) {
-  const final = string.match(/^\d+$/);
-  if (final) return parseInt(string);
-
-  const parenthesisContent = string.match(/\((?<content>[\d\+\*\s]*)\)/);
-  if (parenthesisContent) {
-    const content = firstSolve(parenthesisContent.groups.content);
-
-    return firstSolve(string.replace(parenthesisContent[0], content));
+function solveParenthesis(string, solver) {
+  let parenthesisContent = string.match(/\((?<content>[\d\+\*\s]*)\)/);
+  while (parenthesisContent) {
+    const content = solver(parenthesisContent.groups.content);
+    string = string.replace(parenthesisContent[0], content);
+    parenthesisContent = string.match(/\((?<content>[\d\+\*\s]*)\)/);
   }
 
-  const operation = string.match(pmRegExp);
-  return firstSolve(singleSolve(operation));
+  return string;
 }
 
-function secondSolve(string) {
-  const final = string.match(/^\d+$/);
-  if (final) return parseInt(string);
+function firstSolver(string) {
+  string = solveParenthesis(string, firstSolver);
 
-  const parenthesisContent = string.match(/\((?<content>[\d\+\*\s]*)\)/);
-  if (parenthesisContent) {
-    const content = secondSolve(parenthesisContent.groups.content);
+  let operation = string.match(pmRegExp);
+  while (operation) {
+    string = singleSolve(operation);
+    operation = string.match(pmRegExp);
+  }
+  return parseInt(string);
+}
 
-    return secondSolve(string.replace(parenthesisContent[0], content));
+function secondSolver(string) {
+  string = solveParenthesis(string, secondSolver);
+
+  let operation = string.match(pmRegExp);
+  while (operation) {
+    const plusOperation = string.match(pRegExp);
+    if (plusOperation) {
+      string = singleSolve(plusOperation);
+      operation = string.match(pmRegExp);
+      continue;
+    }
+    const multiplyOperation = string.match(mRegExp);
+    string = singleSolve(multiplyOperation);
+    operation = string.match(pmRegExp);
   }
 
-  const operation = string.match(pRegexp);
-  if (!operation) return solveMultiplication(string);
-
-  return secondSolve(singleSolve(operation));
-}
-
-function solveMultiplication(string) {
-  const operation = string.match(mRegexp);
-  return secondSolve(singleSolve(operation));
+  return parseInt(string);
 }
 
 function solution18first(string) {
-  return string.split("\n").reduce((acc, curr) => acc + firstSolve(curr), 0);
+  return string.split("\n").reduce((acc, curr) => acc + firstSolver(curr), 0);
 }
 
 function solution18second(string) {
-  return string.split("\n").reduce((acc, curr) => acc + secondSolve(curr), 0);
+  return string.split("\n").reduce((acc, curr) => acc + secondSolver(curr), 0);
 }
 
 module.exports = {
