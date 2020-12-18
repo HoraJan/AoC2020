@@ -10,7 +10,6 @@ function checkValueInLimits(value, [firstLimit, secondLimit]) {
 }
 
 function solution16first(string) {
-  console.time("first");
   const [definitions, _myTicket, otherTickets] = string.split("\n\n");
   const sections = definitions
     .match(/(\d+\-\d+)+/g)
@@ -25,12 +24,10 @@ function solution16first(string) {
       );
     });
 
-  console.timeEnd("first");
   return invalid.reduce((acc, curr) => acc + curr);
 }
 
 function solution16second(string) {
-  console.time("second");
   const [definitions, myTicket, otherTickets] = string.split("\n\n");
 
   const myNumbers = myTicket
@@ -99,7 +96,6 @@ function solution16second(string) {
     .filter(([key]) => key.startsWith("departure"))
     .map(([_key, value]) => value);
 
-  console.timeEnd("second");
   return dValues.reduce((acc, curr) => {
     return acc * myNumbers[curr];
   }, 1);

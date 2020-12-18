@@ -1,14 +1,17 @@
-function singleSolve(match, nextFunction) {
+const pRegexp = new RegExp(/(?<first>\d+)\s(?<operand>\+)\s(?<second>\d+)/);
+const mRegexp = new RegExp(/(?<first>\d+)\s(?<operand>\*)\s(?<second>\d+)/);
+const pmRegExp = new RegExp(
+  /(?<first>\d+)\s(?<operand>[\+\*])\s(?<second>\d+)/
+);
+function singleSolve(match) {
   let [operation, first, operand, second] = match;
   first = parseInt(first);
   second = parseInt(second);
   const result = operand === "+" ? first + second : first * second;
-  return nextFunction(
-    match.input
-      .replace(operation, result)
-      .replace(/\((\d+)\)/, "$1")
-      .trim()
-  );
+  return match.input
+    .replace(operation, result)
+    .replace(/\((\d+)\)/, "$1")
+    .trim();
 }
 
 function firstSolve(string) {
@@ -22,10 +25,8 @@ function firstSolve(string) {
     return firstSolve(string.replace(parenthesisContent[0], content));
   }
 
-  const operation = string.match(
-    /(?<first>\d+)\s(?<operand>[\+\*])\s(?<second>\d+)/
-  );
-  return singleSolve(operation, firstSolve);
+  const operation = string.match(pmRegExp);
+  return firstSolve(singleSolve(operation));
 }
 
 function secondSolve(string) {
@@ -39,17 +40,15 @@ function secondSolve(string) {
     return secondSolve(string.replace(parenthesisContent[0], content));
   }
 
-  const operation = string.match(
-    /(?<first>\d+)\s(?<operand>\+)\s(?<second>\d+)/
-  );
+  const operation = string.match(pRegexp);
   if (!operation) return solveMultiplication(string);
 
-  return singleSolve(operation, secondSolve);
+  return secondSolve(singleSolve(operation));
 }
 
 function solveMultiplication(string) {
-  let operation = string.match(/(?<first>\d+)\s(?<operand>\*)\s(?<second>\d+)/);
-  return singleSolve(operation, secondSolve);
+  const operation = string.match(mRegexp);
+  return secondSolve(singleSolve(operation));
 }
 
 function solution18first(string) {

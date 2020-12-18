@@ -5,25 +5,18 @@ function determineActive(count, current) {
     : 0;
 }
 
-function getElement(object, indexArray) {
-  if (!indexArray.length) return object ? 1 : 0;
-
-  const index = indexArray.pop();
-  return object[index] ? getElement(object[index], indexArray) : 0;
-}
-
-function countNeighbors(x, y, z, zLayers) {
+function countNeighbors(x, y, z, cube) {
   let count = 0;
   for (let zDiff = z - 1; zDiff <= z + 1; zDiff++) {
     for (let yDiff = y - 1; yDiff <= y + 1; yDiff++) {
       for (let xDiff = x - 1; xDiff <= x + 1; xDiff++) {
         if (xDiff === x && yDiff === y && zDiff === z) continue;
 
-        count += getElement(zLayers, [xDiff, yDiff, zDiff]);
+        count += cube.has(zDiff + "," + yDiff + "," + xDiff) ? 1 : 0;
       }
     }
   }
-  const current = getElement(zLayers, [x, y, z]);
+  const current = cube.has(z + "," + y + "," + x) ? 1 : 0;
   return determineActive(count, current);
 }
 
@@ -36,47 +29,45 @@ function countNeighbors4D(x, y, z, zz, zzCubes) {
           if (xDiff === x && yDiff === y && zDiff === z && zzDiff === zz)
             continue;
 
-          count += getElement(zzCubes, [xDiff, yDiff, zDiff, zzDiff]);
+          count += zzCubes.has(zzDiff + "," + zDiff + "," + yDiff + "," + xDiff)
+            ? 1
+            : 0;
         }
       }
     }
   }
-  const current = getElement(zzCubes, [x, y, z, zz]);
+  const current = zzCubes.has(zz + "," + z + "," + y + "," + x) ? 1 : 0;
   return determineActive(count, current);
 }
 
-function countValues(object) {
-  return Object.values(object).reduce((acc, curr) => {
-    if (typeof curr === "object") return acc + countValues(curr);
-    return acc + curr;
-  }, 0);
-}
-
-function createObjectFromString(string) {
+function createObjectFromString(string, length) {
   let yMin = 0,
     yMax = 0,
     xMin = 0,
     xMax = 0;
-  const layerObject = string.split("\n").reduce((lineAcc, line, lineIndex) => {
-    const lineObject = line.split("").reduce((acc, point, pointIndex) => {
+  const set = new Set();
+  const layerObject = string.split("\n").forEach((line, lineIndex) => {
+    let emptyLine = true;
+    const lineObject = line.split("").forEach((point, pointIndex) => {
       if (point === "#") {
-        acc[pointIndex] = 1;
+        const index =
+          length === 4
+            ? "0,0," + lineIndex + "," + pointIndex
+            : "0," + lineIndex + "," + pointIndex;
+        set.add(index);
         xMax = Math.max(xMax, pointIndex);
+        emptyLine = false;
       }
-      return acc;
-    }, {});
-    if (Object.keys(lineObject).length) {
-      lineAcc[lineIndex] = lineObject;
-      yMax = Math.max(yMax, lineIndex);
-    }
+    });
+    if (emptyLine) return;
 
-    return lineAcc;
-  }, {});
-  return [{ 0: layerObject }, yMax, yMin, xMax, xMin];
+    yMax = Math.max(yMax, lineIndex);
+  });
+  return [set, yMax, yMin, xMax, xMin];
 }
 
 function solution17first(string) {
-  let cube = {};
+  let cube = new Set();
   let zMin = 0,
     zMax = 0,
     yMin = 0,
@@ -86,19 +77,17 @@ function solution17first(string) {
   [cube, yMax, yMin, xMax, xMin] = createObjectFromString(string);
 
   let turn = 0;
-  let oldCube = {};
+  let oldCube = new Set();
   let newCube = cube;
   while (turn < 6) {
     oldCube = newCube;
-    newCube = {};
+    newCube = new Set();
     for (let z = zMin - 1; z <= zMax + 1; z++) {
       for (let y = yMin - 1; y <= yMax + 1; y++) {
         for (let x = xMin - 1; x <= xMax + 1; x++) {
           const active = countNeighbors(x, y, z, oldCube);
           if (!active) continue;
-          if (!newCube[z]) newCube[z] = {};
-          if (!newCube[z][y]) newCube[z][y] = {};
-          newCube[z][y][x] = 1;
+          newCube.add(z + "," + y + "," + x);
 
           zMin = Math.min(zMin, z);
           zMax = Math.max(zMax, z);
@@ -112,11 +101,11 @@ function solution17first(string) {
     turn++;
   }
 
-  return countValues(newCube);
+  return newCube.size;
 }
 
 function solution17second(string) {
-  const zzCubes = { 0: {} };
+  let zzCubes = new Set();
   let zzMin = 0;
   let zzMax = 0;
   let zMin = 0;
@@ -125,25 +114,21 @@ function solution17second(string) {
   let yMax = 0;
   let xMin = 0;
   let xMax = 0;
-  [cube, yMax, yMin, xMax, xMin] = createObjectFromString(string);
-  zzCubes[0] = cube;
+  [zzCubes, yMax, yMin, xMax, xMin] = createObjectFromString(string, 4);
 
   let turn = 0;
-  let oldZzCubes = {};
+  let oldZzCubes = new Set();
   let newZzCubes = zzCubes;
   while (turn < 6) {
     oldZzCubes = newZzCubes;
-    newZzCubes = {};
+    newZzCubes = new Set();
     for (let zz = zzMin - 1; zz <= zzMax + 1; zz++) {
       for (let z = zMin - 1; z <= zMax + 1; z++) {
         for (let y = yMin - 1; y <= yMax + 1; y++) {
           for (let x = xMin - 1; x <= xMax + 1; x++) {
             const active = countNeighbors4D(x, y, z, zz, oldZzCubes);
             if (!active) continue;
-            if (!newZzCubes[zz]) newZzCubes[zz] = {};
-            if (!newZzCubes[zz][z]) newZzCubes[zz][z] = {};
-            if (!newZzCubes[zz][z][y]) newZzCubes[zz][z][y] = {};
-            newZzCubes[zz][z][y][x] = 1;
+            newZzCubes.add(zz + "," + z + "," + y + "," + x);
 
             zzMin = Math.min(zzMin, zz);
             zzMax = Math.max(zzMax, zz);
@@ -160,7 +145,7 @@ function solution17second(string) {
     turn++;
   }
 
-  return countValues(newZzCubes);
+  return newZzCubes.size;
 }
 
 module.exports = {
