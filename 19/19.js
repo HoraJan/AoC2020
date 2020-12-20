@@ -36,7 +36,7 @@ function getObject(string) {
       return {
         ruleIndex,
         rule: rule.replace(/"/g, ""),
-        dependencies: rule.replace(/\|/g, "").split(/\s+/g),
+        dependencies: rule.split(/\s|\|/g).filter((el) => el),
       };
     })
     .filter(({ ruleIndex, rule }) => {
