@@ -11,7 +11,7 @@ function findEdges(string) {
     const lines = tile.split("\n");
     tilesMap.set(number, lines.slice(1).join("\n"));
     const front = lines.slice(1).map((line) => line[0]);
-    const back = lines.slice(1).map((line) => line[9]);
+    const back = lines.slice(1).map((line) => line[line.length - 1]);
     const tileEdges = {
       top: lines[1],
       bottom: lines[10],
@@ -30,19 +30,22 @@ function findEdges(string) {
       edges.set(tileEdge, [number + "-" + edgeName]);
     });
   });
-  const filteredEdges = [...edges].filter(([_edge, connections]) => {
-    return !connections[0].endsWith("R");
-  });
+  const filteredEdges = [...edges]
+    .filter(([_edge, connections]) => {
+      return !connections[0].endsWith("R");
+    })
+    .map(([_edge, connections]) => [
+      parseInt(connections[0]),
+      parseInt(connections[1]),
+    ]);
 
   return [filteredEdges, tilesMap];
 }
 
 function getConnections(edges) {
   const connections = new Map();
-  edges.forEach(([_edge, pairs]) => {
-    if (!pairs[1]) return;
-    const from = parseInt(pairs[0]);
-    const to = parseInt(pairs[1]);
+  edges.forEach(([from, to]) => {
+    if (!to) return;
     if (!connections.has(from)) {
       connections.set(from, new Set());
     }
@@ -128,12 +131,20 @@ function verticalFlip(tile) {
 function rotate(tile) {
   const matrix = tile.split("\n").map((line) => line.split(""));
   return matrix[0]
-    .map((val, index) => matrix.map((row) => row[index]).reverse())
+    .map((_val, index) => matrix.map((row) => row[index]).reverse())
     .map((line) => line.join(""))
     .join("\n");
 }
 
-function rotateTiles(puzzle, tiles, filteredEdges) {
+function rotateAndFlip(tile, index) {
+  if (index === 3) {
+    return verticalFlip(tile);
+  }
+  return rotate(tile);
+}
+
+function getEdge(tile, edge) {}
+function rotateTiles(puzzle, tiles) {
   const firstTileIndex = puzzle[0][0];
   const newTiles = new Map();
 
@@ -174,14 +185,8 @@ function rotateTiles(puzzle, tiles, filteredEdges) {
 
       if (previousEdge === currentEdge) break;
 
-      if (rotating === 3) {
-        currentTile = verticalFlip(currentTile);
-        rotating++;
-        continue;
-      }
-
+      currentTile = rotateAndFlip(currentTile, rotating);
       rotating++;
-      currentTile = rotate(currentTile);
     }
 
     newTiles.set(nextTile, currentTile);
@@ -220,7 +225,20 @@ function renderImage(puzzle, tiles) {
   return image;
 }
 
-function findMonster(image, mosterIndexes, monsterX, monsterY) {
+function findMonster(image) {
+  const mosterIndexes = [];
+  let monsterX = 0;
+  let monsterY = 0;
+
+  monster.split("\n").forEach((line, lineIndex) => {
+    monsterX = Math.max(monsterX, lineIndex);
+    line.split("").forEach((el, elIndex) => {
+      monsterY = Math.max(monsterY, elIndex);
+      if (el === "#") {
+        mosterIndexes.push([lineIndex, elIndex]);
+      }
+    });
+  });
   const lines = image.split("\n");
   let found = false;
 
@@ -260,40 +278,19 @@ function solution20second(string) {
 
   const puzzle = placeTiles(connections);
 
-  const rotatedTiles = rotateTiles(puzzle, tiles, filteredEdges);
+  const rotatedTiles = rotateTiles(puzzle, tiles);
   let image = renderImage(puzzle, rotatedTiles)
     .replace(/\./g, " ")
     .replace(/#/g, ".");
 
   let rotating = 0;
-
-  const mosterIndexes = [];
-  let monsterX = 0;
-  let monsterY = 0;
-
-  monster.split("\n").forEach((line, lineIndex) => {
-    monsterX = Math.max(monsterX, lineIndex);
-    line.split("").forEach((el, elIndex) => {
-      monsterY = Math.max(monsterY, elIndex);
-      if (el === "#") {
-        mosterIndexes.push([lineIndex, elIndex]);
-      }
-    });
-  });
-
   while (rotating < 8) {
-    [image, found] = findMonster(image, mosterIndexes, monsterX, monsterY);
+    [image, found] = findMonster(image);
     if (found) break;
-    if (rotating === 3) {
-      image = verticalFlip(image);
-      rotating++;
-      continue;
-    }
 
+    image = rotateAndFlip(image, rotating);
     rotating++;
-    image = rotate(image);
   }
-
   console.log(image);
 
   return image.match(/\./g).length;
