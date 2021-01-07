@@ -291,7 +291,6 @@ function solution20second(string) {
     image = rotateAndFlip(image, rotating);
     rotating++;
   }
-  console.log(image);
 
   return image.match(/\./g).length;
 }
